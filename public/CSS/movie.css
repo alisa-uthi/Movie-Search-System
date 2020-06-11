@@ -1,0 +1,40 @@
+h1{
+    color: white;
+    background-color: black;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
+.w3-third.result{
+    background-color: rgba(39, 119, 156, 0.466);
+    padding-left: 70px;
+    padding-right: 20px;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-size: large;
+    color: white;
+}
+
+nav{
+    background-color: grey;
+}
+
+.w3-third.trailer{
+    background-color: rgba(39, 70, 156, 0.411);
+    padding-left: 25px;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-size: large;
+    color: rgb(124, 124, 124);
+}
+
+.w3-third.music{
+    background-color: rgba(53, 156, 39, 0.411);
+    padding-left: 75px;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-size: large;
+}
+
+body{
+    background-image: url(new2.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+

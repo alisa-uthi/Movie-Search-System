@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Login</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="CSS/main.css">
+        <script>
+            $(document).ready(function (){
+                $("#login-button").click(function(){
+                    var username = $("#username").val();
+                    var password = $("#password").val();
+                    // Send username and password to the server-side to check in the database
+                    // Send the header authorization to authorize in the server-side
+                    $.ajax({
+                        url: 'http://localhost:8080/',
+                        method: 'POST',
+                        headers: {
+                            'authorization':'project2moviesearch',
+                        },
+                        data: {
+                            username : username,
+                            password : password
+                        },
+                    }).done(function(data){
+                        // Change the page according to the role of this user
+                        if(data === 'admin'){
+                            window.location.assign('http://localhost:8080/admin-dashboard');
+                        }
+                        else if(data === 'user'){
+                            window.location.assign('http://localhost:8080/movie');
+                        }
+                    });
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div id="header">PROJECT2 MOVIE SEARCH</div>
+        <div class="container">
+            <form class="name">
+                USERNAME : <br><input type="text" id="username" required><br><br>
+                PASSWORD : <br><input type="password" id="password" required>
+            </form>
+            <button type="button" id="login-button" class="btn btn-primary btn-lg">LOG IN</button>
+        </div>
+    </body>
+</html>

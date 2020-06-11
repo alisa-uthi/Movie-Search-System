@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Edit user</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="/CSS/addOrEditUser.css">
+        <script>
+             $(document).ready(function (){
+                /*
+                    Get the original information of user who wants to edit their information
+                    and fill it in the input text box
+                */
+                $.get('/user/get/info', (data, status) => {
+                    $.each(data, (i, obj) => {
+                        // Fill in the original user information
+                        document.getElementById('user-id').value = obj.id; 
+                        document.getElementById('firstname').value = obj.firstname; 
+                        document.getElementById('lastname').value = obj.lastname; 
+                        document.getElementById('address').value = obj.address; 
+                        document.getElementById('age').value = obj.age; 
+                        document.getElementById('preferences').value = obj.preferences; 
+                        document.getElementById('email').value = obj.email; 
+                    });
+                });
+                
+                /* If this button is clicked, send data to server-side to update this data to the database */
+                $("#confirm-button").click(function (){
+                    var firstname = $("#firstname").val();
+                    var lastname = $("#lastname").val();
+                    var address = $("#address").val();
+                    var age = $("#age").val();
+                    var preferences = $("#preferences").val();
+                    var email = $("#email").val();
+                    var id = document.getElementById('user-id').value;
+                    $.post('/user/edit', {
+                        firstname : firstname,
+                        lastname : lastname,
+                        address : address,
+                        age : age,
+                        preferences : preferences,
+                        email : email,
+                        id : id
+                    }, (data, status) => {
+                        // If it successfully updates user information, go back to the admin dashboard
+                        if(status == 'success')
+                            window.location.assign('http://localhost:8080/admin-dashboard');
+                    });
+                });
+                /* If this button is clicked, go back to the admin dashboard without adding new user*/
+                $("#cancle-button").click(function (){
+                    window.location.assign('http://localhost:8080/admin-dashboard');
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <b>FIRSTNAME :</b><input type="text" id="firstname" required><br><br>
+            <b>LASTNAME :</b><input type="text" id="lastname" required><br><br>
+            <b>ADDRESS :</b><input type="text" id="address" required><br><br>
+            <b>AGE :</b><input type="text" id="age" required><br><br>
+            <b>PREFERENCES :</b><input type="text" id="preferences" required><br><br>
+            <b>EMAIL :</b><input type="text" id="email" required><br><br>
+            <div id="user-id"></div>
+            <button type="button" id="confirm-button" class="btn btn-primary btn-lg">Confirm</button>
+            <button type="button" id="cancle-button" class="btn btn-light btn-lg">Cancel</button>
+        </div>
+    </body>
+</html>

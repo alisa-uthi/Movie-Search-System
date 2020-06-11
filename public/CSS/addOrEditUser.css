@@ -1,0 +1,20 @@
+.container{
+    width: 50%;
+    margin-top: 100px;
+}
+
+input{
+    margin-right: 70px;
+    width: 70%;
+    float: right;
+}
+
+#confirm-button{
+    margin-left: 200px;
+    margin-top: 30px;
+}
+
+#cancle-button{
+    margin-left: 30px;
+    margin-top: 30px;
+}

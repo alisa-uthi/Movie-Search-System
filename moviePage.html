@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!--Set the web page as Movie Search-->
+    <title>Movie Search</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="CSS/movie.css">
+    <script type="application/javascript">
+        //create variable to store the name of the movie 
+        var tempdata;
+        async function callwebservice(url, dataforsend) {
+            //create variable to store result from the server side
+            let result; 
+            //variable to store the name of movie
+            let sentdata = {
+                Datainfor: dataforsend
+            };
+            //send a request to the server side
+            let response = await fetch(url, {
+                method: 'POST',
+                //set header for accepting the json as a result from this request
+                headers:{
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                //convert string to JSON
+                body: JSON.stringify(sentdata)
+            });
+            //JSON result from server side
+            data = await response.json();
+            //set the url that we want to send
+            if(url == 'http://localhost:8080/youtube')
+            {
+                //reset the html page in trailer id<div>
+                $("#Trailer").empty();
+                //create variables to store the result
+                var videodata = data.data;
+                var length = videodata.length;
+                //remove the "" from the result
+                var videoresult = videodata.substring(0,length-1);
+                //send HTML page to div part
+                return $("#Trailer").append(`${videoresult}`)
+            }
+            else
+            {
+                //reset the html page in Comment id<div>
+                $("#Comment").empty();
+                //append the 'Comment From twitter' to Comment id<div>
+                $("#Comment").append('Comment From twitter');
+                //create a loop to send each data to the html page
+                for(var i=0;i<data.data.length;i++)
+                {
+                    //create variables to store the result
+                    var tweetdata = data.data[i].template;
+                    var length = tweetdata.length;
+                    //remove the "" from the result
+                    var tweetresult = tweetdata.substring(0,length-1);
+                    //send HTML page to div part
+                    $("#Comment").append(tweetresult);  
+                }          
+            }
+        }
+        $(document).ready(function () {
+            //If button was pressed
+            $("#submit").click(function () {
+                //take the movie name from html body
+                tempdata = $("#data").val();
+                callwebservice("http://localhost:8080/youtube",tempdata);
+                callwebservice("http://localhost:8080/twitter",tempdata);
+                //call function to send api request for movie information
+                sendapirequest(tempdata);
+                //call function to send api request from spotify web service
+                generatetoken();
+            })
+        })
+        //call spotify api request
+        function sendapirequest(information) {
+            //reset the html page in result id<div>
+            $("#result").empty();
+            var apikey = "24cbf000";
+            $.ajax({
+                url: `http://www.omdbapi.com/?t=${information}&apikey=${apikey}`,
+                type: 'GET',
+                Accept: 'application/json; charset=utf-8',
+            }).then(function (data) {
+                //create variables to store the result
+                var title = data.Title;
+                var year = data.Year;
+                var rated = data.Rated;
+                var released = data.Released;
+                var totaltime = data.Runtime;
+                var genre = data.Genre;
+                var director = data.Director;
+                var actors = data.Actors;
+                var metascore = data.Metascore;
+                var imdb = data.imdbRating;
+                var picture = data.Poster;
+                var production = data.Production;
+                var storyline = data.Plot;
+                //create variable to store the html template before it shows on the website
+                var Resultofmovie = `<p>Title : ${title}</p><img src="${picture}"><p>Year: ${year}</p><p>Rated: ${rated}</p><p>Released date: ${released}</p><p>Total time: ${totaltime}</p><p>Genre: ${genre}</p><p>director: ${director}</p><p>actors: ${actors}</p><p>Metascore: ${metascore}</p><p>IMDB: ${imdb}</p><p>Production: ${production}</p><p>Storyline: ${storyline}`;
+                //send html template to result div
+                $("#result").append(Resultofmovie);
+            });
+        }
+        //send api request to spotify web service fro token to we send a request for searching playlist
+        function generatetoken() {
+            //variable to store keys
+            var client_id = '7ab17ae8ec5d4720b2cdff3abcb026c4';
+            var client_serect = '104eaef047714330952f7853d499a48b';
+            //convert two keys into string with 64-base
+            var client = btoa(`${client_id}:${client_serect}`);
+            $.ajax({
+                url: `https://accounts.spotify.com/api/token?grant_type=client_credentials`,
+                type: 'POST',
+                //set the content that we will get as HTML page
+                contentType: 'application/x-www-form-urlencoded',
+                beforeSend: function (xhr) {
+                    //set the header for authorization<send it first>
+                    xhr.setRequestHeader("Authorization", `Basic ${client}`);
+                },
+            }).then(function (result) {
+                //store the result or token
+                newtoken = result.access_token;
+                //call function to search for playlist
+                requestmusic(tempdata, newtoken);
+            })
+        }
+        //send api request for searching playlist
+        function requestmusic(information, Token) {
+            //create variables to store the setting
+            var typeofresult = "playlist"
+            var limit = "1"
+            //add the string " soundtrack" into information
+            information += ' soundtrack';
+            console.log(information);
+            //send a request to spotify web service
+            $.ajax({
+                url: `https://api.spotify.com/v1/search?q=${information}&type=${typeofresult}&market=TH&limit=${limit}`,
+                type: 'GET',
+                //set the content that we will get as JSON
+                contentType: 'application/json',
+                Accept: 'application/json',
+                beforeSend: function (xhr) {
+                    //set the header for authorization<send it first>
+                    xhr.setRequestHeader("Authorization", `Bearer ${Token}`);
+                }
+            }).then(function ({ playlists }) {
+                //reset the html page in result id<div>
+                $("#Soundtrack").empty();
+                //get the result from JSON
+                var album = playlists.items;
+                console.log(album);
+                //use map to loop for each item in items array
+                album.map(function (album) {
+                    //Get each specfic value from JSON
+                    var album_id = album.id;
+                    console.log(album_id);
+                    //create html template<iframe></iframe> to send it to client side<HTML>
+                    var Example = '<iframe src="https://open.spotify.com/embed/playlist/' + album_id + ' width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>'
+                    //send html template to Soundtrack div
+                    $("#Soundtrack").append(Example);
+                })
+
+            }).catch(function (err) {
+                //print out error
+                console.log(err);
+            });
+
+        }
+
+    </script>
+</head>
+
+<body>
+    <div class="w3-content" style="max-width:1400px;">
+        <header>
+            <h1 align="center">Movie Search <span class="glyphicon glyphicon-play"></span></h1>
+        </header>
+        <nav align="center">
+            
+            <input type="text" placeholder="Search" id="data" name="data">
+            <input type="submit" value="submit" id="submit">
+
+        </nav>
+        <section>
+            <div class="w3-third result">
+                <article>
+                    <div id="result"></div>
+                </article>
+            </div>
+        </section>
+
+        <section>
+            <div class="w3-third trailer">
+                <div id="Trailer">
+                
+                </div>
+                <div id="Comment">
+                </div>
+            </div>
+        </section>
+        <section>
+            <div class="w3-third music">
+                <div id="Soundtrack"></div>
+            </div>
+        </section>
+    </div>
+</body>
+
+</html>

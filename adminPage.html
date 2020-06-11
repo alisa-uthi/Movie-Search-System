@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Admin Dashboard</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="/CSS/adminPage.css">
+        <script>
+            /*Function to search for a user by firstname*/
+            function searchUser() {
+                var input, filter, table, tr, td, i, txtValue;
+                input = document.getElementById("search-input");
+                filter = input.value.toUpperCase();
+                table = document.getElementById("users");
+                tr = table.getElementsByTagName("tr");
+
+                // Loop through all table rows, and hide those who don't match the search query
+                for (i = 0; i < tr.length; i++) {
+                    td = tr[i].getElementsByTagName("td")[0];
+                    if (td) {
+                        txtValue = td.textContent || td.innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            tr[i].style.display = "";
+                        } else {
+                            tr[i].style.display = "none";
+                        }
+                    }
+                }
+            }
+
+            /*Function to edit user information according to the id of the user*/
+            function editUser(id){
+                $.post('http://localhost:8080/user/get', {id, id}, (data, status) => {
+                    // Change to editUser html file so that user can change their information
+                    window.location.assign('http://localhost:8080/user/edit'); 
+                });
+            }
+
+            /*Function to delete user according to the id of the user*/
+            function deleteUser(id){
+                // Send user's ID to the server in order to delete in the database
+                $.post('http://localhost:8080/user/delete', {id, id}, (data, status) => {
+                    // Remove row that contain this user information from the table
+                    var row = document.getElementById('row' + data);
+                    row.remove();
+                });
+            }
+
+            $(document).ready(function (){
+                $.post('http://localhost:8080/admin-dashboard', (data, status) => {
+                    if(status == 'success'){
+                        // Generate table of users
+                        $.each(data, (i, obj) => {
+                            // Create edit button of each user
+                            var edit_button = document.createElement('button');
+                            edit_button.setAttribute('id', 'edit-button' + obj.id);
+                            edit_button.setAttribute('class', 'btn btn-light');
+                            edit_button.setAttribute('type', 'button');
+                            edit_button.setAttribute('style', 'margin-left: 30px; margin-right: 20px;')
+                            edit_button.setAttribute('onclick', 'editUser(' + obj.id + ')');
+                            var edit = document.createTextNode('Edit');
+                            edit_button.appendChild(edit);
+                            // Create delete button of each user
+                            var delete_button = document.createElement('button');
+                            delete_button.setAttribute('id', 'delete-button' + obj.id);
+                            delete_button.setAttribute('class', 'btn btn-danger');
+                            delete_button.setAttribute('type', 'button');
+                            delete_button.setAttribute('onclick', 'deleteUser(' + obj.id + ')');
+                            var deleteTxt = document.createTextNode('Delete');
+                            delete_button.appendChild(deleteTxt);
+                            // Generate row of the table and append it to the table in HTML
+                            var row = document.createElement('tr');
+                            row.setAttribute('id', 'row' + obj.id);
+                            $('table').append(row);
+                            // Exclude id field from the object
+                            const { id, ...noID } = obj;
+                            // Loop to show each information of the user*/
+                            for(item in noID){
+                                var col = document.createElement('td');
+                                var text = document.createTextNode(noID[item]);
+                                col.appendChild(text);
+                                row.appendChild(col);
+                                row.appendChild(edit_button);
+                                row.appendChild(delete_button);
+                            }
+                        });
+                    }
+                });
+
+                $('#add-button').click(function(){
+                    // If admin clicks add button, change page to addUser html file 
+                    // in order to fill out user information
+                    window.location.assign('http://localhost:8080/user/new'); 
+                });
+
+                $('#logout-button').click(function(){
+                    // If admin clicks log out button, go back to log in page 
+                    window.location.assign('http://localhost:8080/'); 
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div class="container-fluid">
+            <button type="button" id="logout-button" class="btn btn-danger">LOG OUT</button>
+            <div class="card">
+                <h5 class="card-header">Users</h5>
+                <div class="card-body">
+                    <button type="button" class="btn btn-success" id="add-button">Add user</button> 
+                    Search: <input type="text" id="search-input" placeholder="Search firstname" onkeyup="searchUser()"> 
+                    <table id="users">
+                        <tr>
+                            <th>Firstname</th>
+                            <th>Lastname</th>
+                            <th>Address</th>
+                            <th>Age</th>
+                            <th>Preferences</th>
+                            <th>Email</th>
+                            <th style="width: 200px;"></th>
+                        </tr>   
+                    </table>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

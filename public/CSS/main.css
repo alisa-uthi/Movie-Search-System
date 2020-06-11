@@ -1,0 +1,30 @@
+#header{
+    text-align: center;
+    font-size: xx-large;
+    font-weight: 700;
+    margin-top: 50px;
+    margin-bottom: 30px;
+}
+
+.container{
+    width: 40%;
+    height: 400px;
+    border: 2px solid silver;
+    border-radius: 20px;
+}
+
+.name{
+    margin-top: 50px;
+    margin-left: 50px;
+    font-size: x-large;
+    font-weight: 500;
+}
+.name input{
+    width: 400px;
+}
+
+#login-button{
+    border: 0ch;
+    margin-top: 50px;
+    margin-left: 200px;
+}
